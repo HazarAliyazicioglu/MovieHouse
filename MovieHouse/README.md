@@ -4,9 +4,9 @@ Modern ve kullanıcı dostu film yönetim sistemi. Filmleri keşfedin, puanlayı
 
 ## ✨ Özellikler
 
-- 🎯 **Film Keşfi**: 1000+ film arasından arama yapın
+- 🎯 **Film Keşfi**: 1000 film arasından arama yapın
 - ⭐ **Puanlama Sistemi**: 5 yıldızlık film puanlama
-- 📋 **Kişisel Listeler**: İzlediklerim ve İzleyeceklerim listeleri
+- 📋 **Kişisel Listeler**: İzlediklerim, izleyeceklerim ve özelleştirilmiş listeler
 - 🔍 **Gelişmiş Arama**: Film adı, yönetmen, oyuncu ve tür bazında arama
 - 🎨 **Modern UI**: Responsive ve kullanıcı dostu arayüz
 - 👤 **Kullanıcı Sistemi**: Kayıt olun ve kişisel profilinizi yönetin
@@ -110,10 +110,6 @@ dotnet ef database update
 dotnet ef database drop --force
 dotnet ef database update
 ```
-
-## 📝 Lisans
-
-Bu proje MIT lisansı altında lisanslanmıştır.
 
 ## 🤝 Katkıda Bulunma
 
