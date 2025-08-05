@@ -1,0 +1,517 @@
+/* Film teması CSS stilleri */
+:root {
+    --movie-dark: #0f0f0f;
+    --movie-darker: #1a1a1a;
+    --movie-gold: #ffd700;
+    --movie-gold-hover: #ffed4e;
+    --movie-red: #e50914;
+    --movie-red-hover: #f40612;
+    --movie-text: #ffffff;
+    --movie-text-secondary: #b3b3b3;
+    --movie-border: #333333;
+}
+
+html {
+    font-size: 14px;
+    position: relative;
+    min-height: 100%;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+body {
+    margin-bottom: 60px;
+    background: linear-gradient(135deg, var(--movie-dark) 0%, var(--movie-darker) 100%);
+    color: var(--movie-text);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Header Stilleri */
+.movie-header {
+    background: linear-gradient(90deg, var(--movie-dark) 0%, var(--movie-darker) 50%, var(--movie-dark) 100%);
+    border-bottom: 2px solid var(--movie-gold);
+    box-shadow: 0 4px 20px rgba(255, 215, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar {
+    padding: 1rem 0;
+}
+
+/* Brand/Logo Stilleri */
+.movie-brand {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: var(--movie-gold) !important;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.movie-brand:hover {
+    color: var(--movie-gold-hover) !important;
+    transform: scale(1.05);
+}
+
+.brand-text {
+    font-weight: 900;
+    letter-spacing: 1px;
+    color: var(--movie-gold);
+    transition: all 0.3s ease;
+}
+
+.brand-text:hover {
+    color: var(--movie-gold-hover);
+    transform: scale(1.05);
+}
+
+
+
+/* Arama Çubuğu Stilleri */
+.search-container {
+    max-width: 500px;
+    width: 100%;
+}
+
+.search-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid var(--movie-border);
+    border-radius: 50px;
+    padding: 0.5rem;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.search-box:focus-within {
+    border-color: var(--movie-gold);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+    transform: scale(1.02);
+}
+
+.search-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--movie-text);
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    outline: none;
+}
+
+.search-input::placeholder {
+    color: var(--movie-text-secondary);
+    font-style: italic;
+}
+
+.search-btn {
+    background: var(--movie-gold);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--movie-dark);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-left: 0.5rem;
+}
+
+.search-btn:hover {
+    background: var(--movie-gold-hover);
+    transform: scale(1.1);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+}
+
+/* Giriş/Kayıt Butonları */
+.auth-buttons {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.login-btn {
+    border: 2px solid var(--movie-gold);
+    color: var(--movie-gold);
+    background: transparent;
+    padding: 0.5rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.login-btn:hover {
+    background: var(--movie-gold);
+    color: var(--movie-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+}
+
+.register-btn {
+    background: var(--movie-red);
+    border: 2px solid var(--movie-red);
+    color: var(--movie-text);
+    padding: 0.5rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.register-btn:hover {
+    background: var(--movie-red-hover);
+    border-color: var(--movie-red-hover);
+    color: var(--movie-text);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(229, 9, 20, 0.4);
+}
+
+/* Footer Stilleri */
+.movie-footer {
+    background: var(--movie-darker);
+    border-top: 2px solid var(--movie-gold);
+    color: var(--movie-text-secondary);
+    padding: 2rem 0;
+    margin-top: 3rem;
+}
+
+.footer-link {
+    color: var(--movie-gold);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.footer-link:hover {
+    color: var(--movie-gold-hover);
+    text-decoration: underline;
+}
+
+/* Responsive Tasarım */
+@media (max-width: 991.98px) {
+    .search-container {
+        margin: 1rem 0;
+        max-width: 100%;
+    }
+    
+    .auth-buttons {
+        margin-top: 1rem;
+        justify-content: center;
+    }
+    
+    .navbar-collapse {
+        background: rgba(15, 15, 15, 0.95);
+        border-radius: 10px;
+        padding: 1rem;
+        margin-top: 1rem;
+        backdrop-filter: blur(10px);
+    }
+}
+
+@media (max-width: 575.98px) {
+    .movie-brand {
+        font-size: 1.5rem;
+    }
+    
+    .auth-buttons {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .login-btn, .register-btn {
+        width: 100%;
+        margin: 0.25rem 0;
+    }
+}
+
+/* Genel Buton Stilleri */
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem var(--movie-gold), 0 0 0 0.25rem rgba(255, 215, 0, 0.25);
+}
+
+/* Animasyonlar */
+
+
+/* Container Stilleri */
+.container-fluid {
+    padding: 2rem 1rem;
+}
+
+/* Kullanıcı bilgisi stilleri */
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.username {
+    color: var(--movie-gold);
+    font-weight: 600;
+    font-size: 1.1rem;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.username-link {
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.username-link:hover {
+    text-decoration: none;
+}
+
+.username-link:hover .username {
+    color: var(--movie-gold-hover);
+    transform: scale(1.05);
+}
+
+.logout-btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: white;
+}
+
+/* Form Stilleri */
+.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
+    color: var(--movie-text-secondary);
+    text-align: end;
+}
+
+.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
+    text-align: start;
+}
+
+/* Live Search Dropdown Styles */
+.live-search-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 0 0 15px 15px;
+    backdrop-filter: blur(15px);
+    z-index: 1000;
+    max-height: 400px;
+    overflow-y: auto;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.live-search-results {
+    padding: 0;
+}
+
+.search-result-item {
+    display: flex;
+    padding: 12px 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: white;
+}
+
+.search-result-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(5px);
+}
+
+.search-result-item:last-child {
+    border-bottom: none;
+}
+
+.result-poster {
+    width: 50px;
+    height: 75px;
+    margin-right: 12px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    background: linear-gradient(45deg, var(--movie-dark), var(--movie-gold));
+}
+
+.film-poster {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.no-poster-small {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+}
+
+.result-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.result-title {
+    font-weight: bold;
+    font-size: 1rem;
+    color: var(--movie-gold);
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.result-meta {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 4px;
+    font-size: 0.85rem;
+    opacity: 0.8;
+}
+
+.result-year {
+    color: #0dcaf0;
+}
+
+.result-rating {
+    color: #ffc107;
+}
+
+.result-director,
+.result-genre,
+.result-actors {
+    font-size: 0.8rem;
+    opacity: 0.7;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.result-director {
+    color: #e83e8c;
+}
+
+.result-genre {
+    color: #6f42c1;
+}
+
+.result-actors {
+    color: #fd7e14;
+}
+
+.no-results-item {
+    padding: 20px;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.7);
+    font-style: italic;
+}
+
+.no-results-item i {
+    margin-right: 8px;
+}
+
+.live-search-footer {
+    padding: 10px 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    text-align: center;
+}
+
+/* Highlight search terms */
+mark {
+    background: var(--movie-gold);
+    color: var(--movie-dark);
+    padding: 1px 3px;
+    border-radius: 3px;
+    font-weight: bold;
+}
+
+/* Scrollbar styling for dropdown */
+.live-search-dropdown::-webkit-scrollbar {
+    width: 6px;
+}
+
+.live-search-dropdown::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+.live-search-dropdown::-webkit-scrollbar-thumb {
+    background: var(--movie-gold);
+    border-radius: 3px;
+}
+
+.live-search-dropdown::-webkit-scrollbar-thumb:hover {
+    background: #d4af37;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .live-search-dropdown {
+        max-height: 300px;
+    }
+    
+    .search-result-item {
+        padding: 10px 12px;
+    }
+    
+    .result-poster {
+        width: 40px;
+        height: 60px;
+        margin-right: 10px;
+    }
+    
+    .result-title {
+        font-size: 0.9rem;
+    }
+    
+    .result-meta,
+    .result-director,
+    .result-genre,
+    .result-actors {
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .live-search-dropdown {
+        max-height: 250px;
+    }
+    
+    .search-result-item {
+        padding: 8px 10px;
+    }
+    
+    .result-poster {
+        width: 35px;
+        height: 52px;
+        margin-right: 8px;
+    }
+    
+    .result-title {
+        font-size: 0.85rem;
+    }
+    
+    .result-meta {
+        flex-direction: column;
+        gap: 2px;
+    }
+}

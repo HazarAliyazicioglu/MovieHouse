@@ -1,0 +1,435 @@
+@model MovieHouse.Models.UserList
+@{
+    ViewData["Title"] = $"{Model.Name} - MovieHouse";
+}
+
+<div class="list-details-container">
+    <div class="list-details-header">
+        <div class="list-info">
+            <h1><i class="fas fa-list"></i> @Model.Name</h1>
+            @if (!string.IsNullOrEmpty(Model.Description))
+            {
+                <p class="list-description">@Model.Description</p>
+            }
+            <div class="list-meta">
+                <span><i class="fas fa-calendar"></i> Oluşturulma: @Model.CreatedAt.ToString("dd.MM.yyyy")</span>
+                <span><i class="fas fa-film"></i> @(Model.UserListFilms?.Count ?? 0) film</span>
+            </div>
+        </div>
+        <div class="list-actions">
+            <a href="@Url.Action("Profile", "Account")" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Geri Dön
+            </a>
+        </div>
+    </div>
+
+    <div class="list-content">
+        @if (Model.UserListFilms == null || !Model.UserListFilms.Any())
+        {
+            <div class="empty-list">
+                <i class="fas fa-film"></i>
+                <h3>Bu liste henüz boş</h3>
+                <p>Film eklemek için ana sayfaya gidin ve filmlerin yanındaki "Listeye Ekle" butonunu kullanın.</p>
+                <a href="@Url.Action("Index", "Home")" class="btn btn-warning">
+                    <i class="fas fa-home"></i> Ana Sayfaya Git
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="films-grid">
+                @foreach (var listFilm in Model.UserListFilms.OrderByDescending(ulf => ulf.AddedAt))
+                {
+                    <div class="film-card">
+                        <div class="film-poster">
+                            @if (!string.IsNullOrEmpty(listFilm.Film?.PosterUrl))
+                            {
+                                <img src="@listFilm.Film.PosterUrl" alt="@listFilm.Film.Title" class="img-fluid">
+                            }
+                            else
+                            {
+                                <div class="no-poster">
+                                    <i class="fas fa-film"></i>
+                                    <p>Poster Yok</p>
+                                </div>
+                            }
+                            <div class="film-rating">
+                                <span class="rating-badge">⭐ @listFilm.Film?.Rating</span>
+                            </div>
+                            <div class="film-actions">
+                                <button onclick="removeFilm(@Model.Id, @listFilm.FilmId)" class="btn btn-danger btn-sm">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="film-info">
+                            <h5 class="film-title">@listFilm.Film?.Title</h5>
+                            <p class="film-year">@listFilm.Film?.Year</p>
+                            @if (listFilm.Film?.Director != null)
+                            {
+                                <p class="film-director">🎭 @listFilm.Film.Director.Name</p>
+                            }
+                            @if (!string.IsNullOrEmpty(listFilm.Film?.Runtime))
+                            {
+                                <p class="film-runtime">⏱️ @listFilm.Film.Runtime</p>
+                            }
+                            @if (!string.IsNullOrEmpty(listFilm.Note))
+                            {
+                                <div class="film-note">
+                                    <small class="text-white">
+                                        <strong>Not:</strong> @listFilm.Note
+                                    </small>
+                                </div>
+                            }
+                            <div class="film-added">
+                                <small class="text-white">
+                                    <i class="fas fa-plus"></i> @listFilm.AddedAt.ToString("dd.MM.yyyy")
+                                </small>
+                            </div>
+                            
+                            <!-- Rating System -->
+                            @if (Context.Session.GetString("UserId") != null)
+                            {
+                                <div class="rating-section mt-3">
+                                    <div class="rating-header">
+                                        <small class="text-white">Film puanınız:</small>
+                                    </div>
+                                    <div class="star-rating" data-film-id="@listFilm.FilmId">
+                                        @for (int i = 1; i <= 5; i++)
+                                        {
+                                            <span class="star" data-rating="@i">★</span>
+                                        }
+                                    </div>
+                                    <div class="rating-text">
+                                        <small class="text-white">Puanlamak için yıldızlara tıklayın (1★=1 puan, 5★=5 puan)</small>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/profile.css" />
+    <style>
+        .list-details-container {
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--movie-dark) 0%, var(--movie-darker) 100%);
+            padding: 2rem;
+        }
+
+        .list-details-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 3rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .list-info h1 {
+            color: var(--movie-gold);
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .list-description {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .list-meta {
+            display: flex;
+            gap: 2rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .list-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .empty-list {
+            text-align: center;
+            padding: 4rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .empty-list i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: var(--movie-gold);
+        }
+
+        .empty-list h3 {
+            color: var(--movie-gold);
+            margin-bottom: 1rem;
+        }
+
+        .films-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .film-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .film-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .film-poster {
+            position: relative;
+            height: 300px;
+            overflow: hidden;
+        }
+
+                 .film-poster img {
+             width: 100%;
+             height: 100%;
+             object-fit: cover;
+             image-rendering: auto;
+             image-rendering: -webkit-optimize-contrast;
+             image-rendering: crisp-edges;
+         }
+
+        .film-rating {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        .film-actions {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+        }
+
+        .film-info {
+            padding: 1.5rem;
+            color: white;
+        }
+
+        .film-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: var(--movie-gold);
+        }
+
+        .film-year, .film-director, .film-runtime {
+            margin-bottom: 0.3rem;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .film-note {
+            margin: 1rem 0;
+            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+
+        .film-added {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Rating System Styles */
+        .rating-section {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 1rem;
+        }
+        
+        .rating-header {
+            margin-bottom: 0.5rem;
+            color: rgba(255, 255, 255, 0.95) !important;
+            font-weight: 500;
+        }
+        
+        .star-rating {
+            display: flex;
+            gap: 2px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .star {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+        
+        .star:hover {
+            color: var(--movie-gold);
+            transform: scale(1.1);
+        }
+        
+        .star.active {
+            color: var(--movie-gold);
+            text-shadow: 0 0 5px var(--movie-gold);
+        }
+        
+        .star-rating:hover .star {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .star-rating:hover .star:hover,
+        .star-rating:hover .star:hover ~ .star {
+            color: rgba(255, 255, 255, 0.3);
+        }
+        
+        .rating-text {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.95) !important;
+            font-weight: 500;
+        }
+
+        @@media (max-width: 768px) {
+            .list-details-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .list-info h1 {
+                font-size: 2rem;
+            }
+
+            .list-meta {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .films-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 1rem;
+            }
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Mevcut puanları yükle
+            loadUserRatings();
+            
+            // Yıldız tıklama olayları
+            $('.star').on('click', function() {
+                const filmId = $(this).closest('.star-rating').data('film-id');
+                const rating = $(this).data('rating');
+                rateFilm(filmId, rating);
+            });
+            
+            // Yıldız hover olayları
+            $('.star-rating').on('mouseenter', '.star', function() {
+                const rating = $(this).data('rating');
+                highlightStars($(this).closest('.star-rating'), rating);
+            });
+            
+            $('.star-rating').on('mouseleave', function() {
+                const filmId = $(this).data('film-id');
+                loadUserRatingForFilm(filmId);
+            });
+        });
+        
+        function loadUserRatings() {
+            $('.star-rating').each(function() {
+                const filmId = $(this).data('film-id');
+                loadUserRatingForFilm(filmId);
+            });
+        }
+        
+        function loadUserRatingForFilm(filmId) {
+            $.get('@Url.Action("GetUserRating", "Rating")', { filmId: filmId }, function(response) {
+                if (response.success && response.rating > 0) {
+                    highlightStars($(`.star-rating[data-film-id="${filmId}"]`), response.rating);
+                } else {
+                    resetStars($(`.star-rating[data-film-id="${filmId}"]`));
+                }
+            });
+        }
+        
+        function highlightStars(starContainer, rating) {
+            starContainer.find('.star').removeClass('active');
+            starContainer.find('.star').each(function() {
+                const starRating = $(this).data('rating');
+                if (starRating <= rating) {
+                    $(this).addClass('active');
+                }
+            });
+        }
+        
+        function resetStars(starContainer) {
+            starContainer.find('.star').removeClass('active');
+        }
+        
+        function rateFilm(filmId, rating) {
+            $.post('@Url.Action("RateFilm", "Rating")', { filmId: filmId, rating: rating }, function(response) {
+                if (response.success) {
+                    // Yıldızları güncelle
+                    highlightStars($(`.star-rating[data-film-id="${filmId}"]`), rating);
+                    
+                    // Başarı mesajı göster
+                    showNotification(response.message, 'success');
+                } else {
+                    showNotification(response.message, 'error');
+                }
+            });
+        }
+        
+        function showNotification(message, type) {
+            const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+            const alertHtml = `
+                <div class="alert ${alertClass} alert-dismissible fade show position-fixed" 
+                     style="top: 20px; right: 20px; z-index: 9999; min-width: 300px;">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} me-2"></i>
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            
+            $('body').append(alertHtml);
+            
+            // 3 saniye sonra otomatik kapat
+            setTimeout(function() {
+                $('.alert').alert('close');
+            }, 3000);
+        }
+        
+        function removeFilm(listId, filmId) {
+            if (confirm('Bu filmi listeden çıkarmak istediğinizden emin misiniz?')) {
+                $.post('@Url.Action("RemoveFilm", "UserList")', { 
+                    listId: listId, 
+                    filmId: filmId 
+                }, function(response) {
+                    if (response.success) {
+                        location.reload();
+                    } else {
+                        alert(response.message);
+                    }
+                });
+            }
+        }
+    </script>
+} 

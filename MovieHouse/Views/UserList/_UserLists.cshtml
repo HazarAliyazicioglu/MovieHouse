@@ -1,0 +1,47 @@
+@model List<MovieHouse.Models.UserList>
+
+@if (!Model.Any())
+{
+    <div class="no-lists">
+        <i class="fas fa-list-ul"></i>
+        <h4>Henüz liste oluşturmadınız</h4>
+        <p>İlk listenizi oluşturmak için "Yeni Liste Oluştur" butonuna tıklayın.</p>
+    </div>
+}
+else
+{
+    <div class="row">
+        @foreach (var list in Model)
+        {
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="list-card">
+                    <div class="list-header">
+                        <h5 class="list-title">@list.Name</h5>
+                        <div class="list-actions">
+                            <a href="@Url.Action("Details", "UserList", new { id = list.Id })" class="btn btn-sm btn-primary">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <button onclick="deleteList(@list.Id)" class="btn btn-sm btn-danger">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    @if (!string.IsNullOrEmpty(list.Description))
+                    {
+                        <p class="list-description">@list.Description</p>
+                    }
+                    
+                    <div class="list-meta">
+                        <small class="text-white">
+                            <i class="fas fa-calendar"></i> @list.CreatedAt.ToString("dd.MM.yyyy")
+                        </small>
+                        <small class="text-white">
+                            <i class="fas fa-film"></i> @(list.UserListFilms?.Count ?? 0) film
+                        </small>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+} 

@@ -1,0 +1,559 @@
+﻿@model MovieHouse.Controllers.HomeViewModel
+@{
+    ViewData["Title"] = "MovieHouse";
+}
+
+<div class="container-fluid">
+    <!-- Hero Section -->
+    <div class="hero-section text-center py-5 mb-5">
+        <div class="container">
+            <h1 class="display-3 text-white mb-4">🎬 MovieHouse</h1>
+            <p class="lead text-white mb-4">En iyi filmleri keşfedin</p>
+            <div class="stats-row">
+                <div class="stat-item">
+                    <h3>@Model.TotalFilms</h3>
+                    <p>Film</p>
+                </div>
+                <div class="stat-item">
+                    <h3>@Model.TotalDirectors</h3>
+                    <p>Yönetmen</p>
+                </div>
+                <div class="stat-item">
+                    <h3>@Model.TotalActors</h3>
+                    <p>Oyuncu</p>
+                </div>
+                <div class="stat-item">
+                    <h3>@Model.TotalCategories</h3>
+                    <p>Kategori</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-lg-3 col-md-4 mb-4">
+                <div class="sidebar">
+                    <div class="sidebar-header">
+                        <h4><i class="fas fa-filter"></i> Kategoriler</h4>
+                    </div>
+                    <div class="sidebar-content">
+                        <div class="category-filter">
+                            @if (Model.IsSearch)
+                            {
+                                <a href="@Url.Action("Search", "Home", new { query = Model.SearchQuery, page = 1 })" 
+                                   class="category-item @(Model.SelectedCategoryId == null ? "active" : "")">
+                                    <i class="fas fa-search"></i>
+                                    Tüm Arama Sonuçları
+                                    <span class="badge bg-primary">@Model.Films.Count</span>
+                                </a>
+                            }
+                            else
+                            {
+                                <a href="@Url.Action("Index", "Home", new { page = 1 })" 
+                                   class="category-item @(Model.SelectedCategoryId == null ? "active" : "")">
+                                    <i class="fas fa-film"></i>
+                                    Tüm Filmler
+                                    <span class="badge bg-primary">@Model.TotalFilms</span>
+                                </a>
+                            }
+                            
+                            @foreach (var category in Model.Categories)
+                            {
+                                var filmCount = category.FilmCategories?.Count ?? 0;
+                                var categoryUrl = Model.IsSearch 
+                                    ? Url.Action("Search", "Home", new { query = Model.SearchQuery, page = 1, categoryId = category.Id })
+                                    : Url.Action("Index", "Home", new { page = 1, categoryId = category.Id });
+                                
+                                <a href="@categoryUrl" 
+                                   class="category-item @(Model.SelectedCategoryId == category.Id ? "active" : "")">
+                                    <i class="fas fa-tag"></i>
+                                    @category.Name
+                                    <span class="badge bg-secondary">@filmCount</span>
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content Area -->
+            <div class="col-lg-9 col-md-8">
+                <!-- Page Header -->
+                <div class="page-header mb-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <h2 class="text-white mb-0">
+                                @if (Model.IsSearch)
+                                {
+                                    <span>🔍 "@Model.SearchQuery" için arama sonuçları</span>
+                                }
+                                else if (Model.SelectedCategoryId != null)
+                                {
+                                    var selectedCategory = Model.Categories.FirstOrDefault(c => c.Id == Model.SelectedCategoryId);
+                                    <span>📂 @selectedCategory?.Name Filmleri</span>
+                                }
+                                else
+                                {
+                                    <span>🎬 Tüm Filmler</span>
+                                }
+                            </h2>
+                            <p class="text-white mb-0">
+                                @Model.Films.Count film gösteriliyor
+                                @if (Model.TotalPages > 1)
+                                {
+                                    <span>(Sayfa @Model.CurrentPage / @Model.TotalPages)</span>
+                                }
+                                @if (Model.IsSearch)
+                                {
+                                    <span>• Toplam @Model.TotalFilms film arasında arama yapıldı</span>
+                                }
+                            </p>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <div class="page-info">
+                                <small class="text-muted">
+                                    @if (Model.IsSearch)
+                                    {
+                                        <span>Arama sonucu: @Model.Films.Count film • Her sayfada @Model.PageSize film</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Toplam @Model.TotalFilms film • Her sayfada @Model.PageSize film</span>
+                                    }
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search Results Info -->
+                @if (Model.IsSearch && !string.IsNullOrEmpty(Model.SearchQuery))
+                {
+                    <div class="search-info mb-4">
+                        <div class="alert alert-info">
+                            <i class="fas fa-search me-2"></i>
+                            <strong>"@Model.SearchQuery"</strong> için arama yapıldı.
+                            @if (Model.Films.Count == 0)
+                            {
+                                <span>Sonuç bulunamadı. Farklı anahtar kelimeler deneyin.</span>
+                            }
+                            else
+                            {
+                                <span>@Model.Films.Count sonuç bulundu.</span>
+                            }
+                            <a href="@Url.Action("Index", "Home")" class="btn btn-sm btn-outline-info ms-2">
+                                <i class="fas fa-times"></i> Aramayı Temizle
+                            </a>
+                        </div>
+                    </div>
+                }
+
+                <!-- Films Grid -->
+                <div class="row">
+                    @if (Model.Films.Count == 0)
+                    {
+                        <div class="col-12">
+                            <div class="no-results text-center py-5">
+                                <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                                <h4 class="text-white">Sonuç bulunamadı</h4>
+                                <p class="text-muted">
+                                    @if (Model.IsSearch)
+                                    {
+                                        <span>"@Model.SearchQuery" için sonuç bulunamadı. Farklı anahtar kelimeler deneyin.</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Bu kategoride henüz film bulunmuyor.</span>
+                                    }
+                                </p>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        @foreach (var film in Model.Films)
+                        {
+                            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 mb-4">
+                                <div class="movie-card">
+                                    <div class="movie-poster">
+                                        <a href="@Url.Action("Details", "Film", new { id = film.Id })" class="poster-link">
+                                            @if (!string.IsNullOrEmpty(film.PosterUrl))
+                                            {
+                                                <img src="@film.PosterUrl" alt="@film.Title" class="img-fluid">
+                                            }
+                                            else
+                                            {
+                                                <div class="no-poster">
+                                                    <i class="fas fa-film"></i>
+                                                    <p>Poster Yok</p>
+                                                </div>
+                                            }
+                                        </a>
+                                        <div class="movie-rating">
+                                            <span class="rating-badge">⭐ @film.Rating</span>
+                                        </div>
+                                        @if (Context.Session.GetString("UserId") != null)
+                                        {
+                                            <div class="movie-actions">
+                                                <button onclick="showAddToListModal(@film.Id, '@film.Title')" class="btn btn-primary btn-sm">
+                                                    <i class="fas fa-plus"></i> Listeye Ekle
+                                                </button>
+                                                <button onclick="addToWatchlist(@film.Id)" class="btn btn-warning btn-sm mt-1">
+                                                    <i class="fas fa-clock"></i> İzleyeceklerim
+                                                </button>
+                                            </div>
+                                        }
+                                    </div>
+                                    <div class="movie-info">
+                                        <h5 class="movie-title">
+                                            <a href="@Url.Action("Details", "Film", new { id = film.Id })" class="title-link">@film.Title</a>
+                                        </h5>
+                                        <p class="movie-year">@film.Year</p>
+                                        @if (film.Director != null)
+                                        {
+                                            <p class="movie-director">🎭 @film.Director.Name</p>
+                                        }
+                                        @if (!string.IsNullOrEmpty(film.Runtime))
+                                        {
+                                            <p class="movie-runtime">⏱️ @film.Runtime</p>
+                                        }
+                                        @if (!string.IsNullOrEmpty(film.Genre))
+                                        {
+                                            <p class="movie-genre">📂 @film.Genre</p>
+                                        }
+                                        @if (!string.IsNullOrEmpty(film.Description))
+                                        {
+                                            <p class="movie-description">@(film.Description.Length > 100 ? film.Description.Substring(0, 100) + "..." : film.Description)</p>
+                                        }
+                                        @if (film.FilmActors != null && film.FilmActors.Any())
+                                        {
+                                            <div class="movie-actors">
+                                                <small class="text-muted">
+                                                    <strong>Oyuncular:</strong>
+                                                    @string.Join(", ", film.FilmActors.Take(3).Select(fa => fa.Actor?.Name))
+                                                    @if (film.FilmActors.Count > 3)
+                                                    {
+                                                        <span>...</span>
+                                                    }
+                                                </small>
+                                            </div>
+                                        }
+                                        
+                                        <!-- Rating System -->
+                                        @if (Context.Session.GetString("UserId") != null)
+                                        {
+                                            <div class="rating-section mt-3">
+                                                <div class="rating-header">
+                                                    <small class="text-white">Film puanınız:</small>
+                                                </div>
+                                                <div class="star-rating" data-film-id="@film.Id">
+                                                    @for (int i = 1; i <= 5; i++)
+                                                    {
+                                                        <span class="star" data-rating="@i">★</span>
+                                                    }
+                                                </div>
+                                                <div class="rating-text">
+                                                    <small class="text-white">Puanlamak için yıldızlara tıklayın (1★=1 puan, 5★=5 puan)</small>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+
+                <!-- Pagination -->
+                @if (Model.TotalPages > 1)
+                {
+                    <div class="pagination-container">
+                        <nav aria-label="Film sayfaları">
+                            <ul class="pagination justify-content-center">
+                                @{
+                                    var currentPage = Model.CurrentPage;
+                                    var totalPages = Model.TotalPages;
+                                    var selectedCategoryId = Model.SelectedCategoryId;
+                                    var searchQuery = Model.SearchQuery;
+                                    
+                                    // Önceki sayfa
+                                    if (currentPage > 1)
+                                    {
+                                        <li class="page-item">
+                                            @if (Model.IsSearch)
+                                            {
+                                                <a class="page-link" href="@Url.Action("Search", "Home", new { query = searchQuery, page = currentPage - 1, categoryId = selectedCategoryId })">
+                                                    <i class="fas fa-chevron-left"></i> Önceki
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <a class="page-link" href="@Url.Action("Index", "Home", new { page = currentPage - 1, categoryId = selectedCategoryId })">
+                                                    <i class="fas fa-chevron-left"></i> Önceki
+                                                </a>
+                                            }
+                                        </li>
+                                    }
+
+                                    // Sayfa numaraları
+                                    var startPage = Math.Max(1, currentPage - 2);
+                                    var endPage = Math.Min(totalPages, currentPage + 2);
+
+                                    if (startPage > 1)
+                                    {
+                                        <li class="page-item">
+                                            @if (Model.IsSearch)
+                                            {
+                                                <a class="page-link" href="@Url.Action("Search", "Home", new { query = searchQuery, page = 1, categoryId = selectedCategoryId })">1</a>
+                                            }
+                                            else
+                                            {
+                                                <a class="page-link" href="@Url.Action("Index", "Home", new { page = 1, categoryId = selectedCategoryId })">1</a>
+                                            }
+                                        </li>
+                                        if (startPage > 2)
+                                        {
+                                            <li class="page-item disabled">
+                                                <span class="page-link">...</span>
+                                            </li>
+                                        }
+                                    }
+
+                                    for (int i = startPage; i <= endPage; i++)
+                                    {
+                                        <li class="page-item @(i == currentPage ? "active" : "")">
+                                            @if (Model.IsSearch)
+                                            {
+                                                <a class="page-link" href="@Url.Action("Search", "Home", new { query = searchQuery, page = i, categoryId = selectedCategoryId })">@i</a>
+                                            }
+                                            else
+                                            {
+                                                <a class="page-link" href="@Url.Action("Index", "Home", new { page = i, categoryId = selectedCategoryId })">@i</a>
+                                            }
+                                        </li>
+                                    }
+
+                                    if (endPage < totalPages)
+                                    {
+                                        if (endPage < totalPages - 1)
+                                        {
+                                            <li class="page-item disabled">
+                                                <span class="page-link">...</span>
+                                            </li>
+                                        }
+                                        <li class="page-item">
+                                            @if (Model.IsSearch)
+                                            {
+                                                <a class="page-link" href="@Url.Action("Search", "Home", new { query = searchQuery, page = totalPages, categoryId = selectedCategoryId })">@totalPages</a>
+                                            }
+                                            else
+                                            {
+                                                <a class="page-link" href="@Url.Action("Index", "Home", new { page = totalPages, categoryId = selectedCategoryId })">@totalPages</a>
+                                            }
+                                        </li>
+                                    }
+
+                                    // Sonraki sayfa
+                                    if (currentPage < totalPages)
+                                    {
+                                        <li class="page-item">
+                                            @if (Model.IsSearch)
+                                            {
+                                                <a class="page-link" href="@Url.Action("Search", "Home", new { query = searchQuery, page = currentPage + 1, categoryId = selectedCategoryId })">
+                                                    Sonraki <i class="fas fa-chevron-right"></i>
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <a class="page-link" href="@Url.Action("Index", "Home", new { page = currentPage + 1, categoryId = selectedCategoryId })">
+                                                    Sonraki <i class="fas fa-chevron-right"></i>
+                                                </a>
+                                            }
+                                        </li>
+                                    }
+                                }
+                            </ul>
+                        </nav>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/home.css" />
+}
+
+<!-- Listeye Ekleme Modal -->
+<div class="modal fade" id="addToListModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Film Listeye Ekle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addToListForm">
+                    <input type="hidden" id="filmId" name="filmId">
+                    <div class="mb-3">
+                        <label for="listId" class="form-label">Film eklenecek listeyi seçin:</label>
+                        <select class="form-select" id="listId" name="listId" required>
+                            <option value="">Liste seçin...</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                <button type="button" class="btn btn-primary" onclick="addFilmToList()">Listeye Ekle</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Mevcut puanları yükle
+            loadUserRatings();
+            
+            // Yıldız tıklama olayları
+            $('.star').on('click', function() {
+                const filmId = $(this).closest('.star-rating').data('film-id');
+                const rating = $(this).data('rating');
+                rateFilm(filmId, rating);
+            });
+            
+            // Yıldız hover olayları
+            $('.star-rating').on('mouseenter', '.star', function() {
+                const rating = $(this).data('rating');
+                highlightStars($(this).closest('.star-rating'), rating);
+            });
+            
+            $('.star-rating').on('mouseleave', function() {
+                const filmId = $(this).data('film-id');
+                loadUserRatingForFilm(filmId);
+            });
+        });
+        
+        function loadUserRatings() {
+            $('.star-rating').each(function() {
+                const filmId = $(this).data('film-id');
+                loadUserRatingForFilm(filmId);
+            });
+        }
+        
+        function loadUserRatingForFilm(filmId) {
+            $.get('@Url.Action("GetUserRating", "Rating")', { filmId: filmId }, function(response) {
+                if (response.success && response.rating > 0) {
+                    highlightStars($(`.star-rating[data-film-id="${filmId}"]`), response.rating);
+                } else {
+                    resetStars($(`.star-rating[data-film-id="${filmId}"]`));
+                }
+            });
+        }
+        
+        function highlightStars(starContainer, rating) {
+            starContainer.find('.star').removeClass('active');
+            starContainer.find('.star').each(function() {
+                const starRating = $(this).data('rating');
+                if (starRating <= rating) {
+                    $(this).addClass('active');
+                }
+            });
+        }
+        
+        function resetStars(starContainer) {
+            starContainer.find('.star').removeClass('active');
+        }
+        
+        function rateFilm(filmId, rating) {
+            $.post('@Url.Action("RateFilm", "Rating")', { filmId: filmId, rating: rating }, function(response) {
+                if (response.success) {
+                    // Yıldızları güncelle
+                    highlightStars($(`.star-rating[data-film-id="${filmId}"]`), rating);
+                    
+                    // Başarı mesajı göster
+                    showNotification(response.message, 'success');
+                } else {
+                    showNotification(response.message, 'error');
+                }
+            });
+        }
+        
+        function addToWatchlist(filmId) {
+            $.post('@Url.Action("AddToWatchlist", "Rating")', { filmId: filmId }, function(response) {
+                if (response.success) {
+                    showNotification(response.message, 'success');
+                } else {
+                    showNotification(response.message, 'error');
+                }
+            });
+        }
+        
+        function showNotification(message, type) {
+            const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+            const alertHtml = `
+                <div class="alert ${alertClass} alert-dismissible fade show position-fixed" 
+                     style="top: 20px; right: 20px; z-index: 9999; min-width: 300px;">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} me-2"></i>
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            
+            $('body').append(alertHtml);
+            
+            // 3 saniye sonra otomatik kapat
+            setTimeout(function() {
+                $('.alert').alert('close');
+            }, 3000);
+        }
+
+        function showAddToListModal(filmId, filmTitle) {
+            $('#filmId').val(filmId);
+            $('#addToListModal .modal-title').text(`"${filmTitle}" Listeye Ekle`);
+            
+            // Kullanıcının listelerini yükle
+            $.get('@Url.Action("GetUserLists", "UserList")', function(data) {
+                $('#listId').empty().append('<option value="">Liste seçin...</option>');
+                
+                // Partial view'dan liste verilerini çıkar
+                $(data).find('.list-card').each(function() {
+                    var listId = $(this).find('.list-actions a').attr('href').match(/\/Details\/(\d+)/)[1];
+                    var listName = $(this).find('.list-title').text();
+                    $('#listId').append(`<option value="${listId}">${listName}</option>`);
+                });
+            });
+            
+            $('#addToListModal').modal('show');
+        }
+
+        function addFilmToList() {
+            var filmId = $('#filmId').val();
+            var listId = $('#listId').val();
+
+            if (!listId) {
+                alert('Lütfen bir liste seçin.');
+                return;
+            }
+
+            $.post('@Url.Action("AddFilm", "UserList")', {
+                listId: listId,
+                filmId: filmId,
+                note: ""
+            }, function(response) {
+                if (response.success) {
+                    alert('Film başarıyla listeye eklendi!');
+                    $('#addToListModal').modal('hide');
+                } else {
+                    alert(response.message);
+                }
+            });
+        }
+    </script>
+}

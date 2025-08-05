@@ -1,0 +1,15 @@
+# ASP.NET Core .gitignore
+bin/
+obj/
+*.user
+*.suo
+*.vs/
+*.db
+*.db-shm
+*.db-wal
+*.log
+appsettings.Development.json
+appsettings.Production.json
+secrets.json
+wwwroot/lib/
+node_modules/ 

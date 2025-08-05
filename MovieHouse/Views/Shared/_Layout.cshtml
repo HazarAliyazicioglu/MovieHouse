@@ -1,0 +1,259 @@
+﻿<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - MovieHouse</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/MovieHouse.styles.css" asp-append-version="true" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <header class="movie-header">
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container-fluid">
+                <!-- Sol üstte site ismi -->
+                <a class="navbar-brand movie-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <i class="fas fa-film me-2"></i>
+                    <span class="brand-text">MovieHouse</span>
+                </a>
+
+                <!-- Mobil menü butonu -->
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="navbar-collapse collapse d-lg-inline-flex justify-content-between">
+                    <!-- Orta kısım - Arama çubuğu -->
+                    <div class="search-container mx-auto">
+                        <div class="search-box position-relative">
+                            <input type="text" id="searchInput" class="search-input" placeholder="Film, dizi veya oyuncu ara..." value="@ViewBag.SearchQuery">
+                            <button type="button" id="searchBtn" class="search-btn">
+                                <i class="fas fa-search"></i>
+                            </button>
+                            
+                            <!-- Live Search Dropdown -->
+                            <div id="liveSearchDropdown" class="live-search-dropdown" style="display: none;">
+                                <div id="liveSearchResults" class="live-search-results">
+                                    <!-- Sonuçlar buraya gelecek -->
+                                </div>
+                                <div class="live-search-footer">
+                                    <small class="text-muted">Enter tuşu ile tam arama yapın</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sağ kısım - Kullanıcı durumuna göre -->
+                    <div class="auth-buttons">
+                        @if (Context.Session.GetString("Username") != null)
+                        {
+                            <!-- Giriş yapmış kullanıcı -->
+                            <div class="user-info">
+                                <a href="@Url.Action("Profile", "Account")" class="username-link">
+                                    <span class="username">@Context.Session.GetString("Username")</span>
+                                </a>
+                                <a href="@Url.Action("Logout", "Account")" class="btn btn-outline-light logout-btn">
+                                    <i class="fas fa-sign-out-alt me-1"></i>
+                                    Çıkış Yap
+                                </a>
+                            </div>
+                        }
+                        else
+                        {
+                            <!-- Giriş yapmamış kullanıcı -->
+                            <a href="@Url.Action("Login", "Account")" class="btn btn-outline-light me-2 login-btn">
+                                <i class="fas fa-sign-in-alt me-1"></i>
+                                Giriş Yap
+                            </a>
+                            <a href="@Url.Action("Register", "Account")" class="btn btn-warning register-btn">
+                                <i class="fas fa-user-plus me-1"></i>
+                                Kayıt Ol
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container-fluid">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="movie-footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <p>&copy; 2025 - MovieHouse - Tüm hakları saklıdır</p>
+                </div>
+                <div class="col-md-6 text-end">
+                    <a asp-area="" asp-controller="Home" asp-action="Privacy" class="footer-link">Gizlilik</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    
+    <!-- Live Search JavaScript -->
+    <script>
+        $(document).ready(function() {
+            let searchTimeout;
+            let isDropdownVisible = false;
+            
+            // Live search input event
+            $('#searchInput').on('input', function() {
+                const query = $(this).val().trim();
+                
+                // Clear previous timeout
+                clearTimeout(searchTimeout);
+                
+                // Hide dropdown if query is empty or too short
+                if (query.length < 2) {
+                    hideDropdown();
+                    return;
+                }
+                
+                // Set timeout for search (debounce)
+                searchTimeout = setTimeout(function() {
+                    performLiveSearch(query);
+                }, 300);
+            });
+            
+            // Search button click
+            $('#searchBtn').on('click', function() {
+                const query = $('#searchInput').val().trim();
+                if (query) {
+                    window.location.href = '@Url.Action("Search", "Home")?query=' + encodeURIComponent(query);
+                }
+            });
+            
+            // Enter key press
+            $('#searchInput').on('keypress', function(e) {
+                if (e.which === 13) { // Enter key
+                    const query = $(this).val().trim();
+                    if (query) {
+                        window.location.href = '@Url.Action("Search", "Home")?query=' + encodeURIComponent(query);
+                    }
+                }
+            });
+            
+            // Focus events
+            $('#searchInput').on('focus', function() {
+                const query = $(this).val().trim();
+                if (query.length >= 2) {
+                    showDropdown();
+                }
+            });
+            
+            // Click outside to hide dropdown
+            $(document).on('click', function(e) {
+                if (!$(e.target).closest('.search-box').length) {
+                    hideDropdown();
+                }
+            });
+            
+            // Escape key to hide dropdown
+            $(document).on('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    hideDropdown();
+                }
+            });
+            
+            function performLiveSearch(query) {
+                $.get('@Url.Action("LiveSearch", "Home")', { query: query, limit: 8 }, function(response) {
+                    if (response.success) {
+                        displayLiveSearchResults(response.films, query);
+                        showDropdown();
+                    } else {
+                        hideDropdown();
+                    }
+                }).fail(function() {
+                    hideDropdown();
+                });
+            }
+            
+            function displayLiveSearchResults(films, query) {
+                const resultsContainer = $('#liveSearchResults');
+                
+                if (films.length === 0) {
+                    resultsContainer.html(`
+                        <div class="no-results-item">
+                            <i class="fas fa-search text-muted"></i>
+                            <span>"${query}" için sonuç bulunamadı</span>
+                        </div>
+                    `);
+                    return;
+                }
+                
+                let html = '';
+                films.forEach(function(film) {
+                    const posterUrl = film.posterUrl || '';
+                    const posterHtml = posterUrl ? 
+                        `<img src="${posterUrl}" alt="${film.title}" class="film-poster">` :
+                        `<div class="no-poster-small"><i class="fas fa-film"></i></div>`;
+                    
+                    const actorsText = film.actors && film.actors.length > 0 ? 
+                        film.actors.join(', ') : '';
+                    
+                    html += `
+                        <div class="search-result-item" data-film-id="${film.id}">
+                            <div class="result-poster">
+                                ${posterHtml}
+                            </div>
+                            <div class="result-info">
+                                <div class="result-title">${highlightQuery(film.title, query)}</div>
+                                <div class="result-meta">
+                                    <span class="result-year">${film.year}</span>
+                                    <span class="result-rating">⭐ ${film.rating}</span>
+                                </div>
+                                ${film.director ? `<div class="result-director">🎭 ${highlightQuery(film.director, query)}</div>` : ''}
+                                ${film.genre ? `<div class="result-genre">📂 ${highlightQuery(film.genre, query)}</div>` : ''}
+                                ${actorsText ? `<div class="result-actors">👥 ${actorsText}</div>` : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                resultsContainer.html(html);
+                
+                // Add click event to result items
+                $('.search-result-item').on('click', function() {
+                    const filmId = $(this).data('film-id');
+                    window.location.href = '@Url.Action("Search", "Home")?query=' + encodeURIComponent(query);
+                });
+            }
+            
+            function highlightQuery(text, query) {
+                if (!query) return text;
+                const regex = new RegExp(`(${query})`, 'gi');
+                return text.replace(regex, '<mark>$1</mark>');
+            }
+            
+            function showDropdown() {
+                $('#liveSearchDropdown').show();
+                isDropdownVisible = true;
+            }
+            
+            function hideDropdown() {
+                $('#liveSearchDropdown').hide();
+                isDropdownVisible = false;
+            }
+            
+            // Auto focus on search input
+            $('#searchInput').focus();
+        });
+    </script>
+    
+    @await RenderSectionAsync("Scripts", required: false)
+    @await RenderSectionAsync("Styles", required: false)
+</body>
+</html>

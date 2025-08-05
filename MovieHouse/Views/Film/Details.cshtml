@@ -1,0 +1,296 @@
+@model MovieHouse.Controllers.FilmDetailsViewModel
+@{
+    ViewData["Title"] = Model.Film.Title;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/film-details.css" />
+}
+
+<div class="film-details-container">
+    <div class="film-hero">
+        <h1 class="film-title">@Model.Film.Title</h1>
+        
+        <div class="film-poster">
+            <img src="@Model.Film.PosterUrl" alt="@Model.Film.Title" class="poster-image" />
+        </div>
+        
+        <div class="film-info">
+            
+            <div class="film-meta">
+                <span class="film-year">@Model.Film.Year</span>
+                <span class="film-runtime">@Model.Film.Runtime</span>
+                <span class="film-rating">
+                    <i class="fas fa-star"></i>
+                    @Model.Film.Rating
+                </span>
+            </div>
+            
+            <div class="film-genres">
+                @foreach (var filmCategory in Model.Film.FilmCategories)
+                {
+                    <span class="genre-badge">@filmCategory.Category.Name</span>
+                }
+            </div>
+            
+            @if (Model.Film.Director != null)
+            {
+                <div class="film-director">
+                    <strong>Yönetmen:</strong> @Model.Film.Director.Name
+                </div>
+            }
+            
+            <div class="film-actors">
+                <strong>Oyuncular:</strong>
+                <div class="actors-list">
+                    @foreach (var filmActor in Model.Film.FilmActors.Take(4))
+                    {
+                        <span class="actor-name">@filmActor.Actor.Name</span>
+                    }
+                    @if (Model.Film.FilmActors.Count > 4)
+                    {
+                        <span class="actor-name">ve @(Model.Film.FilmActors.Count - 4) kişi daha...</span>
+                    }
+                </div>
+            </div>
+            
+            @if (Model.IsLoggedIn)
+            {
+                <div class="user-actions">
+                    <div class="rating-section">
+                        <h4>Film Puanınız</h4>
+                        <div class="star-rating" data-film-id="@Model.Film.Id">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                <span class="star @(i <= Model.UserRating ? "active" : "")" data-rating="@i">★</span>
+                            }
+                        </div>
+                        <small class="rating-text">Puanlamak için yıldızlara tıklayın (1★=1 puan, 5★=5 puan)</small>
+                    </div>
+                    
+                    <div class="list-actions">
+                        <button class="btn btn-warning add-to-watchlist" data-film-id="@Model.Film.Id">
+                            <i class="fas fa-plus"></i> İzleyeceklerim Listesine Ekle
+                        </button>
+                        
+                        <div class="dropdown">
+                            <button class="btn btn-outline-warning dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-list"></i> Listeye Ekle
+                            </button>
+                            <ul class="dropdown-menu user-lists-dropdown">
+                                <li><a class="dropdown-item" href="#" data-action="create-new">+ Yeni Liste Oluştur</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <!-- Kullanıcı listeleri AJAX ile yüklenecek -->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="login-prompt">
+                    <p>Film puanlamak ve listelere eklemek için <a href="@Url.Action("Login", "Account")">giriş yapın</a>.</p>
+                </div>
+            }
+        </div>
+    </div>
+    
+    <div class="film-description">
+        <h3>Film Hakkında</h3>
+        <p>@Model.Film.Description</p>
+    </div>
+    
+    <div class="back-to-home">
+        <a href="@Url.Action("Index", "Home")" class="btn btn-outline-warning">
+            <i class="fas fa-arrow-left"></i> Ana Sayfaya Dön
+        </a>
+    </div>
+</div>
+
+<!-- Yeni Liste Oluşturma Modal -->
+<div class="modal fade" id="createListModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Yeni Liste Oluştur</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="createListForm">
+                    <div class="mb-3">
+                        <label for="listName" class="form-label">Liste Adı</label>
+                        <input type="text" class="form-control" id="listName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="listDescription" class="form-label">Açıklama (İsteğe bağlı)</label>
+                        <textarea class="form-control" id="listDescription" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                <button type="button" class="btn btn-warning" id="createListBtn">Liste Oluştur</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            loadUserLists();
+            
+            // Yıldız puanlama sistemi
+            $('.star').on('click', function() {
+                const filmId = $(this).closest('.star-rating').data('film-id');
+                const rating = $(this).data('rating');
+                rateFilm(filmId, rating);
+            });
+            
+            $('.star-rating').on('mouseenter', '.star', function() {
+                const rating = $(this).data('rating');
+                highlightStars($(this).closest('.star-rating'), rating);
+            });
+            
+            $('.star-rating').on('mouseleave', function() {
+                const filmId = $(this).data('film-id');
+                loadUserRatingForFilm(filmId);
+            });
+            
+            // İzleyeceklerim listesine ekleme
+            $('.add-to-watchlist').on('click', function() {
+                const filmId = $(this).data('film-id');
+                addToWatchlist(filmId);
+            });
+            
+            // Liste dropdown işlemleri
+            $(document).on('click', '.dropdown-item[data-action="create-new"]', function(e) {
+                e.preventDefault();
+                $('#createListModal').modal('show');
+            });
+            
+            $(document).on('click', '.dropdown-item[data-list-id]', function(e) {
+                e.preventDefault();
+                const listId = $(this).data('list-id');
+                const filmId = @Model.Film.Id;
+                addFilmToList(filmId, listId);
+            });
+            
+            // Yeni liste oluşturma
+            $('#createListBtn').on('click', function() {
+                const name = $('#listName').val().trim();
+                const description = $('#listDescription').val().trim();
+                
+                if (!name) {
+                    alert('Liste adı gereklidir!');
+                    return;
+                }
+                
+                createList(name, description);
+            });
+        });
+        
+        function highlightStars(starContainer, rating) {
+            starContainer.find('.star').removeClass('active');
+            starContainer.find('.star').each(function() {
+                const starRating = $(this).data('rating');
+                if (starRating <= rating) {
+                    $(this).addClass('active');
+                }
+            });
+        }
+        
+        function loadUserRatingForFilm(filmId) {
+            $.get('/Rating/GetUserRating', { filmId: filmId }, function(data) {
+                const starContainer = $(`.star-rating[data-film-id="${filmId}"]`);
+                starContainer.find('.star').removeClass('active');
+                
+                if (data.rating > 0) {
+                    starContainer.find('.star').each(function() {
+                        const starRating = $(this).data('rating');
+                        if (starRating <= data.rating) {
+                            $(this).addClass('active');
+                        }
+                    });
+                }
+            });
+        }
+        
+        function rateFilm(filmId, rating) {
+            $.post('/Rating/RateFilm', { filmId: filmId, rating: rating }, function(response) {
+                if (response.success) {
+                    showNotification('Film başarıyla puanlandı!', 'success');
+                    loadUserRatingForFilm(filmId);
+                } else {
+                    showNotification('Puanlama sırasında bir hata oluştu.', 'error');
+                }
+            });
+        }
+        
+        function addToWatchlist(filmId) {
+            $.post('/Rating/AddToWatchlist', { filmId: filmId }, function(response) {
+                if (response.success) {
+                    showNotification('Film izleyeceklerim listesine eklendi!', 'success');
+                } else {
+                    showNotification('Film eklenirken bir hata oluştu.', 'error');
+                }
+            });
+        }
+        
+        function loadUserLists() {
+            $.get('/UserList/GetUserLists', function(data) {
+                const dropdown = $('.user-lists-dropdown');
+                const divider = dropdown.find('.dropdown-divider');
+                
+                // Mevcut listeleri temizle (divider'ı koru)
+                dropdown.find('li:not(:first-child):not(:nth-child(2))').remove();
+                
+                if (data && data.length > 0) {
+                    data.forEach(function(list) {
+                        const listItem = $(`<li><a class="dropdown-item" href="#" data-list-id="${list.id}">${list.name}</a></li>`);
+                        dropdown.append(listItem);
+                    });
+                } else {
+                    dropdown.append('<li><span class="dropdown-item-text">Henüz liste oluşturmadınız</span></li>');
+                }
+            });
+        }
+        
+        function addFilmToList(filmId, listId) {
+            $.post('/UserList/AddFilm', { filmId: filmId, listId: listId }, function(response) {
+                if (response.success) {
+                    showNotification('Film listeye eklendi!', 'success');
+                } else {
+                    showNotification('Film eklenirken bir hata oluştu.', 'error');
+                }
+            });
+        }
+        
+        function createList(name, description) {
+            $.post('/UserList/Create', { name: name, description: description }, function(response) {
+                if (response.success) {
+                    $('#createListModal').modal('hide');
+                    $('#createListForm')[0].reset();
+                    showNotification('Liste başarıyla oluşturuldu!', 'success');
+                    loadUserLists();
+                } else {
+                    showNotification('Liste oluşturulurken bir hata oluştu.', 'error');
+                }
+            });
+        }
+        
+        function showNotification(message, type) {
+            const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+            const alert = $(`<div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>`);
+            
+            $('.film-details-container').prepend(alert);
+            
+            setTimeout(function() {
+                alert.alert('close');
+            }, 3000);
+        }
+    </script>
+} 

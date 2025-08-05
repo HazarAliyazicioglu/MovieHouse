@@ -1,0 +1,132 @@
+@model MovieHouse.Models.User
+@{
+    ViewData["Title"] = "Profil - MovieHouse";
+}
+
+<div class="profile-container">
+    <div class="profile-header">
+        <h1><i class="fas fa-user-circle"></i> Profil</h1>
+        <p>Hesap bilgilerinizi yönetin ve listelerinizi oluşturun</p>
+    </div>
+
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle"></i>
+            @ViewBag.Error
+        </div>
+    }
+
+    @if (ViewBag.Success != null)
+    {
+        <div class="alert alert-success">
+            <i class="fas fa-check-circle"></i>
+            @ViewBag.Success
+        </div>
+    }
+
+    <div class="profile-content">
+        <!-- Sekmeler -->
+        <ul class="nav nav-tabs" id="profileTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab">
+                    <i class="fas fa-user"></i> Hesap Bilgileri
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="lists-tab" data-bs-toggle="tab" data-bs-target="#lists" type="button" role="tab">
+                    <i class="fas fa-list"></i> Listelerim
+                </button>
+            </li>
+        </ul>
+
+        <!-- Sekme İçerikleri -->
+        <div class="tab-content" id="profileTabsContent">
+            <!-- Hesap Bilgileri Sekmesi -->
+            <div class="tab-pane fade show active" id="profile" role="tabpanel">
+                <div class="profile-section">
+                    <h3><i class="fas fa-info-circle"></i> Hesap Bilgileri</h3>
+                    
+                    <div class="profile-info">
+                        <div class="info-item">
+                            <label><i class="fas fa-user"></i> Kullanıcı Adı:</label>
+                            <span>@Model.Username</span>
+                        </div>
+                        <div class="info-item">
+                            <label><i class="fas fa-envelope"></i> E-posta:</label>
+                            <span>@Model.Email</span>
+                        </div>
+                        <div class="info-item">
+                            <label><i class="fas fa-calendar"></i> Kayıt Tarihi:</label>
+                            <span>@(Model.CreatedAt > DateTime.MinValue ? Model.CreatedAt.ToString("dd.MM.yyyy") : "Belirtilmemiş")</span>
+                        </div>
+                    </div>
+
+                    <div class="password-section">
+                        <h4><i class="fas fa-lock"></i> Şifre Değiştir</h4>
+                        <form asp-action="ChangePassword" method="post" class="password-form">
+                            <div class="form-group">
+                                <label for="currentPassword">Mevcut Şifre</label>
+                                <input type="password" id="currentPassword" name="currentPassword" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="newPassword">Yeni Şifre</label>
+                                <input type="password" id="newPassword" name="newPassword" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="confirmNewPassword">Yeni Şifre Tekrar</label>
+                                <input type="password" id="confirmNewPassword" name="confirmNewPassword" class="form-control" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-key"></i> Şifre Değiştir
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Listeler Sekmesi -->
+            <div class="tab-pane fade" id="lists" role="tabpanel">
+                <div class="lists-section">
+                    <div class="lists-header">
+                        <h3><i class="fas fa-list"></i> Listelerim</h3>
+                        <a href="@Url.Action("Create", "UserList")" class="btn btn-success">
+                            <i class="fas fa-plus"></i> Yeni Liste Oluştur
+                        </a>
+                    </div>
+
+                    <div class="lists-grid" id="userLists">
+                        <!-- Listeler JavaScript ile yüklenecek -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/profile.css" />
+}
+
+@section Scripts {
+    <script>
+        // Sayfa yüklendiğinde listeleri getir
+        $(document).ready(function() {
+            loadUserLists();
+        });
+
+        function loadUserLists() {
+            $.get('@Url.Action("GetUserLists", "UserList")', function(data) {
+                $('#userLists').html(data);
+            });
+        }
+
+        function deleteList(listId) {
+            if (confirm('Bu listeyi silmek istediğinizden emin misiniz?')) {
+                $.post('@Url.Action("Delete", "UserList")', { id: listId }, function() {
+                    loadUserLists();
+                });
+            }
+        }
+    </script>
+} 
