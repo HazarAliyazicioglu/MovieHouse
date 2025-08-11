@@ -1,128 +1,133 @@
 # 🎬 MovieHouse
 
-Modern ve kullanıcı dostu film yönetim sistemi. Filmleri keşfedin, puanlayın ve kişisel listelerinizi oluşturun.
+A modern and user-friendly movie management system. Discover films, rate them, and create your personal watchlists.
 
-## ✨ Özellikler
+## ✨ Features
 
-- 🎯 **Film Keşfi**: 1000 film arasından arama yapın
-- ⭐ **Puanlama Sistemi**: 5 yıldızlık film puanlama
-- 📋 **Kişisel Listeler**: İzlediklerim, izleyeceklerim ve özelleştirilmiş listeler 
-- 🔍 **Gelişmiş Arama**: Film adı, yönetmen, oyuncu ve tür bazında arama
-- 🎨 **Modern UI**: Responsive ve kullanıcı dostu arayüz
-- 👤 **Kullanıcı Sistemi**: Kayıt olun ve kişisel profilinizi yönetin
+- 🎯 Movie Discovery: Search through 1,000+ movies
+- ⭐ Rating System: 5-star movie rating system
+- 📋 Personal Lists: Watched, to-watch, and custom lists
+- 🔍 Advanced Search: Search by movie title, director, actor, and genre
+- 🎨 Modern UI: Responsive and user-friendly interface
+- 👤 User System: Sign up and manage your personal profile
 
-## 🚀 Hızlı Başlangıç
+## 🚀 Quick Start
+### Requirements
 
-### Gereksinimler
+    .NET 8.0 SDK
 
-- .NET 8.0 SDK
-- Python 3.8+
-- SQL Server LocalDB
+    Python 3.8+
 
-### Kurulum
+    SQL Server LocalDB
 
-1. **Projeyi klonlayın:**
-   ```bash
-   git clone https://github.com/kullaniciadi/MovieHouse.git
-   cd MovieHouse
-   ```
+### Installation
 
-2. **Otomatik kurulum (Önerilen):**
-   ```bash
-   setup_and_run.bat
-   ```
+1. **Clone the repository:**
 
-3. **Manuel kurulum:**
-   ```bash
-   # Python paketlerini yükleyin
-   pip install -r requirements.txt
-   
-   # Veritabanını oluşturun
-   dotnet ef database update
-   
-   # Verileri import edin
-   python import_movies.py
-   
-   # Projeyi çalıştırın
-   dotnet run
-   ```
+         git clone https://github.com/username/MovieHouse.git
+         cd MovieHouse
 
-### Hızlı Çalıştırma
+2. **Automatic setup (Recommended):**
 
-Proje kurulduktan sonra:
-```bash
-run.bat
-```
+         setup_and_run.bat
 
-## 📁 Proje Yapısı
+3. **Manual setup:**
 
-```
-MovieHouse/
-├── Controllers/          # MVC Controller'ları
-├── Models/              # Veri modelleri
-├── Views/               # Razor view'ları
-├── Data/                # Entity Framework context
-├── wwwroot/             # Statik dosyalar (CSS, JS)
-├── Migrations/          # Veritabanı migration'ları
-├── Datasets2/           # Film verileri
-├── import_movies.py     # Veri import scripti
-├── setup_and_run.bat    # Otomatik kurulum
-└── run.bat             # Hızlı çalıştırma
-```
+       # Install Python packages
+       pip install -r requirements.txt
 
-## 🛠️ Teknolojiler
+       # Create the database
+       dotnet ef database update
 
-- **Backend**: ASP.NET Core MVC
-- **Veritabanı**: SQL Server LocalDB
-- **ORM**: Entity Framework Core
-- **Frontend**: HTML5, CSS3, JavaScript, Bootstrap
-- **Veri İşleme**: Python (pandas, pyodbc)
-- **Web Scraping**: BeautifulSoup, requests
+       # Import data
+       python import_movies.py
 
-## 📊 Veritabanı Şeması
+       # Run the project
+       dotnet run
 
-- **Films**: Film bilgileri
-- **Users**: Kullanıcı hesapları
-- **UserLists**: Kullanıcı listeleri
-- **UserRatings**: Film puanları
-- **Categories**: Film kategorileri
-- **Directors**: Yönetmenler
-- **Actors**: Oyuncular
+### Quick Run
 
-## 🎯 Kullanım
+Once the project is set up:
 
-1. **Kayıt Olun**: Yeni hesap oluşturun
-2. **Filmleri Keşfedin**: Ana sayfada filmleri görüntüleyin
-3. **Arama Yapın**: Arama çubuğunu kullanın
-4. **Puanlayın**: Filmleri 5 yıldızla puanlayın
-5. **Liste Oluşturun**: Kişisel film listelerinizi yönetin
+      run.bat
 
-## 🔧 Geliştirme
+## 📁 Project Structure
 
-### Yeni Migration Ekleme
-```bash
-dotnet ef migrations add MigrationName
-dotnet ef database update
-```
+      MovieHouse/
+      ├── Controllers/          # MVC Controllers
+      ├── Models/               # Data models
+      ├── Views/                # Razor views
+      ├── Data/                 # Entity Framework context
+      ├── wwwroot/              # Static files (CSS, JS)
+      ├── Migrations/           # Database migrations
+      ├── Datasets2/            # Movie datasets
+      ├── import_movies.py      # Data import script
+      ├── setup_and_run.bat     # Automatic setup
+      └── run.bat               # Quick run script
 
-### Veritabanını Sıfırlama
-```bash
-dotnet ef database drop --force
-dotnet ef database update
-```
+## 🛠️ Technologies
 
-## 🤝 Katkıda Bulunma
+   **Backend**: ASP.NET Core MVC
 
-1. Fork yapın
-2. Feature branch oluşturun (`git checkout -b feature/AmazingFeature`)
-3. Commit yapın (`git commit -m 'Add some AmazingFeature'`)
-4. Push yapın (`git push origin feature/AmazingFeature`)
-5. Pull Request oluşturun
+   **Database**: SQL Server LocalDB
 
-## 📞 İletişim
+   **ORM**: Entity Framework Core
 
-Proje hakkında sorularınız için issue açabilirsiniz.
+   **Frontend**: HTML5, CSS3, JavaScript, Bootstrap
 
+   **Data Processing**: Python (pandas, pyodbc)
+
+   **Web Scraping**: BeautifulSoup, requests
+
+## 📊 Database Schema
+
+   **Films**: Movie information
+
+   **Users**: User accounts
+
+   **UserLists**: User watchlists
+
+   **UserRatings**: Movie ratings
+
+   **Categories**: Movie categories
+
+   **Directors**: Directors
+
+   **Actors**: Actors
+
+## 🎯 Usage
+
+   **Sign Up**: Create a new account
+
+   **Discover Movies**: Browse movies on the homepage
+
+   **Search**: Use the search bar
+
+   **Rate**: Rate movies with 5 stars
+
+   **Create Lists**: Manage your personal movie lists
+
+## 🔧 Development
+### Add a New Migration
+
+      dotnet ef migrations add MigrationName
+      dotnet ef database update
+
+### Reset the Database
+
+      dotnet ef database drop --force
+      dotnet ef database update
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (git checkout -b feature/AmazingFeature)
+3. Commit your changes (git commit -m 'Add some AmazingFeature')
+4. Push to the branch (git push origin feature/AmazingFeature)
+5. Create a Pull Request
+
+## 📞 Contact
+
+For any questions about the project, feel free to open an issue.
 ---
-
-**MovieHouse** - Film tutkunları için modern platform 🎬 
+**MovieHouse** – A modern platform for movie lovers 🎬
